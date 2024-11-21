@@ -1,13 +1,106 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+:root {
+  font-size: 14px;
+  font-family: mononoki, Monaco, Consolas, 'Lucida Grande', Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-size: 1rem;
+  font-family: mononoki, Monaco, Consolas, 'Lucida Grande', Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+a,
+.btn-link,
+.nav-tabs .nav-link,
+.page-link {
+  color: #5cb85c;
+
+  &:focus,
+  &:hover,
+  &:active {
+    color: #3d8b3d;
+  }
+}
+
+.btn.active,
+.btn.show {
+  color: #3d8b3d;
+}
+
+.page-link:focus {
+  box-shadow: 0 0 0 .25rem rgba(92, 184, 92, .4);
+}
+
+.active > .page-link,
+.page-link.active {
+  color: #fff;
+  border-color: #5cb85c;
+  background-color: #5cb85c;
+}
+
+.page-item:first-child .page-link,
+.page-item:last-child .page-link {
+  border-radius: 0;
+}
+
+.btn {
+  border-radius: 0;
+}
+
+.btn-outline-success {
+  color: #5cb85c;
+  border-color: #5cb85c;
+
+  &:hover,
+  &.active {
+    color: #fff;
+    border-color: #3d8b3d;
+    background-color: #3d8b3d;
+  }
+}
+
+.form-check-input {
+  margin-top: 3px;
+
+  &:checked {
+    border-color: #5cb85c;
+    background-color: #5cb85c;
+  }
+}
+
+.form-control,
+.form-select {
+  border-radius: 0 !important;
+
+  &:focus {
+    border-color: #5cb85c;
+    box-shadow: 0 0 0 .25rem rgba(61, 139, 61, .25);
+  }
+}
+
+.container {
+  max-width: 1140px;
+  margin-inline-start: auto;
+  margin-inline-end: auto;
+}
+
+.badge.bg-success {
+  color: #fff;
+  border-radius: 0;
+  text-decoration: none;
+  background-color: #5cb85c !important;
 }

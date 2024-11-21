@@ -1,0 +1,32 @@
+body {
+  font-size: 16px;
+  background-color: #f5f5f5;
+}
+
+.form-signin {
+  max-width: 360px;
+  margin-block-start: 20vmin !important;
+
+  .form-floating {
+    &:focus-within,
+    &:has(input.is-invalid) {
+      z-index: 2;
+    }
+
+    // .invalid-tooltip {
+    //   min-width: 180px;
+    //   top: -1px;
+    //   left: 100.25%;
+    // }
+  }
+
+  .btn-lg {
+    min-height: 3.5rem;
+  }
+
+  input[type="email"],
+  input[type="text"],
+  input[type="password"] {
+    margin-block-end: -1px;
+  }
+}

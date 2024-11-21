@@ -1,0 +1,17 @@
+.banner {
+  color: #fff;
+  background-color: #212529;
+}
+
+.banner .container {
+  padding: 3.5rem;
+}
+
+.banner .container h1 {
+  font-size: 3.5rem;
+  font-weight: bold;
+}
+
+.banner .container p {
+  font-size: 1.5rem;
+}
