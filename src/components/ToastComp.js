@@ -1,8 +1,37 @@
 import React from 'react'
-
-const ToastComp = () => {
+import { Toast, ToastBody, ToastContainer } from 'react-bootstrap'
+const ToastComp = ({
+  bg= 'dark',
+  content,
+  delay =3000,
+  position,
+  setShow,
+  show,
+  title
+}) => {
   return (
-    <div>ToastComp</div>
+    <ToastContainer
+    containerPosition='fixed'
+    position={position}
+    className='p-3'
+    >
+      <Toast 
+      autohide
+      bg={bg}
+      delay={delay}
+      onClose={()=>setShow(false)}
+      show={show}
+      >
+        <Toast.Header closeButton={false}>
+      <strong className='me-auto'>
+      {title}
+      </strong>
+        </Toast.Header>
+        <ToastBody className='text-white'>
+        {content}
+        </ToastBody>
+      </Toast>
+    </ToastContainer>
   )
 }
 

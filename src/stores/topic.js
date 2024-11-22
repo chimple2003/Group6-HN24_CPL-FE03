@@ -6,43 +6,38 @@ export const [useTopicListStore, TopicListStoreProvider] = createStore((props) =
   const [topicList, setTopicList] = useState([]);
   const [total, setTotal] = useState(0);
   const [theUser, setTheUser] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // Số items trên mỗi trang
+
   const { activeKey = 'all' } = props;
 
-  const fetchTopicList = async (options = {}) => {
-    // Destructure với giá trị mặc định
+const fetchTopicList = async (options = {}) => {
     const {
       tag = '',
       author = '',
       favorited = '',
-      limit = 20,
-      offset = 0,
+      page = 1,
+      limit = itemsPerPage,
     } = options;
-  
+    
     try {
+      const offset = (page - 1) * limit;
       let api = `${API_PREFIX}/articles?limit=${limit}&offset=${offset}`;
-  
-      // Thêm các tham số query nếu có
-      if (tag) {
-        api += `&tag=${encodeURIComponent(tag)}`;
-      }
-      if (author) {
-        api += `&author=${encodeURIComponent(author)}`;
-      }
-      if (favorited) {
-        api += `&favorited=${encodeURIComponent(favorited)}`;
-      }
-  
+      
+      if (tag) api += `&tag=${encodeURIComponent(tag)}`;
+      if (author) api += `&author=${encodeURIComponent(author)}`;
+      if (favorited) api += `&favorited=${encodeURIComponent(favorited)}`;
+      
       const { data = {} } = await axios.get(api);
       const { articles = [], articlesCount = 0 } = data;
-  
-      // Log để kiểm tra kết quả
-      console.log('Fetched Articles:', articles);
-      console.log('Total Articles Count:', articlesCount);
-  
-      setTopicList(articles); // Lưu danh sách bài viết
-      setTotal(articlesCount); // Lưu tổng số bài viết
+      
+      setTopicList(articles);
+      console.log(articles);
+      
+      setTotal(articlesCount);
+      setCurrentPage(page);
     } catch (err) {
-      console.error('fetchTopicList error:', err); // Log lỗi nếu có
+      console.error('fetchTopicList error:', err);
     }
   };
   
@@ -65,5 +60,6 @@ export const [useTopicListStore, TopicListStoreProvider] = createStore((props) =
     setTotal(total - 1);
   };
 
-  return { fetchTopicList, removeTopicFromList, theUser, topicList, total, updateTopicList };
+  return { fetchTopicList, removeTopicFromList, theUser, topicList, total, updateTopicList,currentPage,
+    itemsPerPage, };
 });

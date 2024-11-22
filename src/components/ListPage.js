@@ -21,11 +21,12 @@ const ListPage = ({
   const { fetchTopicList, theUser = {} } = useTopicListStore()
 
   useEffect(() => {
-    fetchTopicList(username, page).catch((err) => {
-      console.log('err', err)
-      console.log('Current Page:', page);
-    })
-  }, [activeKey, page])
+    fetchTopicList({
+      page: parseInt(page, 10),
+      tag: activeKey === 'all' ? '' : activeKey,
+    }).catch(err => console.error('fetchTopicList error:', err));
+  }, [activeKey, page]);
+  
 
   return (
     <>
@@ -39,7 +40,7 @@ const ListPage = ({
           tabs={tabs}
         />
         <ListView activeKey={activeKey} handleTabSelect={handleTabSelect} />
-        <PaginationComp />
+        <PaginationComp activeKey={activeKey} />
       </main>
     </>
   )
