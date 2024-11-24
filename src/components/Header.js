@@ -1,9 +1,9 @@
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Container, Dropdown, Nav, Navbar } from "react-bootstrap";
 import { BASE_URL } from "../constants/setting";
 import NodeLogo from "../assets/images/nodejs.ico";
 import "./Header.css";
-
 import { useAcountStore } from "../stores/auth";
 
 const Header = () => {
@@ -11,12 +11,50 @@ const Header = () => {
   const { pathname = "/" } = useLocation();
   const navigate = useNavigate();
 
+  // State để lưu thông tin avatar và nickname
+  const [avatar, setAvatar] = useState(null);
+  const [nickname, setNickname] = useState(null);
+
+  // Hàm logout
   const handleLogout = () => {
     logout();
     if (pathname !== "/") {
-      navigate("/");
+      navigate("/"); // Điều hướng về trang chủ khi đăng xuất
     }
   };
+
+  useEffect(() => {
+    // Kiểm tra nếu có user và username
+    if (user?.username) {
+      const fetchUserProfile = async () => {
+        try {
+          // Fetch API để lấy thông tin người dùng
+          const response = await fetch(
+            `${BASE_URL}/api/profiles/${user.username}`,
+            {
+              method: "GET",
+              headers: {
+                accept: "application/json",
+              },
+            }
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            const profile = data.profile;
+            setAvatar(profile.image); // Lưu avatar vào state
+            setNickname(profile.username); // Lưu username vào state
+          } else {
+            console.error("Error fetching user profile");
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        }
+      };
+
+      fetchUserProfile(); // Gọi API khi có user.username
+    }
+  }, [user?.username]); // Chạy lại khi `user.username` thay đổi
 
   return (
     <Navbar expand="lg" className="header">
@@ -73,13 +111,14 @@ const Header = () => {
                 <Dropdown.Toggle as={Nav.Link} className="px-0">
                   <img
                     alt="Avatar"
-                    title="Yoonge"
-                    src={`${BASE_URL}${user.avatar}`}
+                    title={nickname || user.username} // Sử dụng nickname hoặc username
+                    src={avatar} // Sử dụng avatarUrl đã được xử lý
                     className="avatar"
                     width="24"
                     height="24"
                   />
-                  {user.nickname || user.username}
+                  {nickname || user.username}{" "}
+                  {/* Hiển thị nickname hoặc username */}
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                   <Dropdown.Item href={`/profile/${user.username}`}>
