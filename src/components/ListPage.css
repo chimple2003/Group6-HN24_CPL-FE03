@@ -1,43 +1,87 @@
+.container.page {
+  margin-top: 1.5rem;
+}
+
+aside {
+  display: block;
+  unicode-bidi: isolate;
+}
+
 .main {
-    min-width: 0;
-    max-width: 1200px;
-    padding: 24px 36px 96px;
-  }
-  
-  .main .nav-tabs {
-    font-size: 16px;
-  }
-  
-  .main .nav-tabs .nav-link {
-    color: #6c757d;
-    border-width: 0;
-    border-block-end-width: 2px;
-    padding-inline-start: 32px;
-    padding-inline-end: 32px;
-  }
-  
-  .main .nav-tabs .nav-link:focus,
-  .main .nav-tabs .nav-link:hover,
-  .main .nav-tabs .nav-link:active {
-    color: #373a3c;
-    border-color: transparent;
-  }
-  
-  .main .nav-tabs .nav-link.active {
-    color: #5cb85c;
-    border-color: #5cb85c;
-  }
-  
-  .main .topicPagination {
-    /* display: none; */
-    margin-block-start: 36px;
-  }
-  
-  .main .topicPagination .pagination {
-    flex-wrap: wrap;
-  }
-  
-  .main .topicPagination .pagination .page-item {
-    margin-block-end: 6px;
-  }
-  
+  min-width: 0;
+  max-width: 1200px;
+  padding: 24px 36px 96px;
+}
+
+.main .nav-tabs {
+  font-size: 16px;
+}
+
+.main .nav-tabs .nav-link {
+  color: #6c757d;
+  border-width: 0;
+  border-block-end-width: 2px;
+  padding-inline-start: 32px;
+  padding-inline-end: 32px;
+}
+
+.main .nav-tabs .nav-link:focus,
+.main .nav-tabs .nav-link:hover,
+.main .nav-tabs .nav-link:active {
+  color: #373a3c;
+  border-color: transparent;
+}
+
+.main .nav-tabs .nav-link.active {
+  color: #5cb85c;
+  border-color: #5cb85c;
+}
+
+.main .topicPagination {
+  /* display: none; */
+  margin-block-start: 36px;
+}
+
+.main .topicPagination .pagination {
+  flex-wrap: wrap;
+}
+
+.main .topicPagination .pagination .page-item {
+  margin-block-end: 6px;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -15px;
+  margin-right: -15px;
+}
+div {
+  display: block;
+  unicode-bidi: isolate;
+}
+.feed-toggle {
+  margin-bottom: -1px;
+}
+.sidebar {
+  padding: 5px 10px 10px 10px;
+  background: #f3f3f3;
+  border-radius: 4px;
+}
+.tag-default {
+  color: #fff !important;
+  font-size: 0.8rem;
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+  white-space: nowrap;
+  margin-right: 3px;
+  margin-bottom: 0.2rem;
+  display: inline-block;
+}
+.tag-default {
+  background-color: #818a91;
+}
+.tag-pill {
+  padding-right: 0.6em;
+  padding-left: 0.6em;
+  border-radius: 10rem;
+}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Banner from "../components/Banner";
 import ListPage from "../components/ListPage";
@@ -10,8 +10,7 @@ const Homepage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get("tab") || "all";
   const [activeKey, setActiveKey] = useState(tab);
-
-  const tabs = [
+  const [tabs, setTabs] = useState([
     { key: "all", label: "All Topics", visibility: 0 },
     { key: "my-topics", label: "My Topics", visibility: 1 },
     { key: "my-favorites", label: "My Favorites", visibility: 1 },
@@ -20,8 +19,9 @@ const Homepage = () => {
       label: "Sign in to see your own topics & favorites",
       visibility: -1,
     },
-  ];
+  ]);
 
+  // Thêm tab mới khi chọn tag
   const handleTabSelect = (key) => {
     if (key === "sign-in") {
       navigate("/login");
@@ -37,8 +37,20 @@ const Homepage = () => {
         ...searchParams,
         tab: key,
       });
+
+      // Thêm tab tag nếu chưa có
+      if (!tabs.some((tab) => tab.key === key)) {
+        setTabs((prevTabs) => [
+          ...prevTabs,
+          { key, label: `#${key}`, visibility: 0 }, // Hiển thị tag dưới dạng `#tag`
+        ]);
+      }
     }
   };
+
+  useEffect(() => {
+    setActiveKey(tab); // Cập nhật activeKey khi URL thay đổi
+  }, [tab]);
 
   return (
     <TopicListStoreProvider activeKey={activeKey}>

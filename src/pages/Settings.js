@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import "./Setting.css";
 import { useAcountStore } from "../stores/auth";
 import axios from "axios";
+import { Container } from "react-bootstrap";
 
 const BASE_URL = "https://node-express-conduit.appspot.com";
 const API_PREFIX = `${BASE_URL}/api`;
@@ -62,7 +63,7 @@ const Settings = () => {
     <>
       <Header />
 
-      <div className="container page">
+      <div className="setting page">
         <div className="row">
           <div className="col-md-6 offset-md-3 col-xs-12">
             <h1>Your Settings</h1>

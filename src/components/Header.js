@@ -80,12 +80,7 @@ const Header = () => {
             >
               Homepage
             </Nav.Link>
-            <Nav.Link
-              href="/tags"
-              className={pathname === "/tags" ? "active me-1" : "me-1"}
-            >
-              Tags
-            </Nav.Link>
+
             {user.username ? (
               <>
                 <Nav.Link

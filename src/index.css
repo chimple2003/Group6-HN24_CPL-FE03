@@ -1,9 +1,9 @@
 :root {
   font-size: 14px;
-  font-family: mononoki, Monaco, Consolas, 'Lucida Grande', Helvetica, Arial, sans-serif;
+  font-family: mononoki, Monaco, Consolas, "Lucida Grande", Helvetica, Arial,
+    sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -19,7 +19,8 @@
 
 body {
   font-size: 1rem;
-  font-family: mononoki, Monaco, Consolas, 'Lucida Grande', Helvetica, Arial, sans-serif;
+  font-family: mononoki, Monaco, Consolas, "Lucida Grande", Helvetica, Arial,
+    sans-serif;
   box-sizing: border-box;
 }
 
@@ -42,7 +43,7 @@ a,
 }
 
 .page-link:focus {
-  box-shadow: 0 0 0 .25rem rgba(92, 184, 92, .4);
+  box-shadow: 0 0 0 0.25rem rgba(92, 184, 92, 0.4);
 }
 
 .active > .page-link,
@@ -88,14 +89,8 @@ a,
 
   &:focus {
     border-color: #5cb85c;
-    box-shadow: 0 0 0 .25rem rgba(61, 139, 61, .25);
+    box-shadow: 0 0 0 0.25rem rgba(61, 139, 61, 0.25);
   }
-}
-
-.container {
-  max-width: 1140px;
-  margin-inline-start: auto;
-  margin-inline-end: auto;
 }
 
 .badge.bg-success {

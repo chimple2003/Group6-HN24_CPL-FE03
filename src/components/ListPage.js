@@ -8,6 +8,7 @@ import "./ListPage.css";
 import { useAcountStore } from "../stores/auth";
 
 import { useTopicListStore } from "../stores/topic";
+import Tags from "../pages/Tags";
 
 const ListPage = ({
   activeKey,
@@ -22,27 +23,51 @@ const ListPage = ({
   const { fetchTopicList, theUser = {} } = useTopicListStore();
 
   useEffect(() => {
-    console.log(user);
-    fetchTopicList({
-      page: parseInt(page, 10),
-      tag: activeKey === "all" ? "" : activeKey,
-    }).catch((err) => console.error("fetchTopicList error:", err));
-  }, [activeKey, page]);
+    const fetchData = async () => {
+      try {
+        const isTag = activeKey.startsWith("tag-"); // Kiểm tra tab có phải tag
+        const tag = isTag ? activeKey.replace("tag-", "") : ""; // Lấy tag nếu có
+
+        const articles = await fetchTopicList({
+          page: parseInt(page, 10),
+          tag,
+        });
+
+        console.log("Fetched Articles:", articles); // Kiểm tra bài viết trả về
+      } catch (err) {
+        console.error("Error fetching topic list:", err);
+      }
+    };
+
+    fetchData();
+  }, [activeKey, page]); // Theo dõi thay đổi activeKey và page;
 
   return (
     <>
       <Header />
       {typeof BannerComp === "function" ? BannerComp(theUser) : BannerComp}
-      <main className="main mx-auto">
-        <TabsComponent
-          activeKey={activeKey}
-          defaultActiveKey={defaultActiveKey}
-          handleTabSelect={handleTabSelect}
-          tabs={tabs}
-        />
-        <ListView activeKey={activeKey} handleTabSelect={handleTabSelect} />
-        <PaginationComp activeKey={activeKey} />
-      </main>
+      <div className="container page">
+        <div className="row">
+          <div className="col-md-9">
+            <TabsComponent
+              activeKey={activeKey}
+              defaultActiveKey={defaultActiveKey}
+              handleTabSelect={handleTabSelect}
+              tabs={tabs}
+            />
+            <ListView activeKey={activeKey} handleTabSelect={handleTabSelect} />
+            <PaginationComp activeKey={activeKey} />
+          </div>
+          <aside className="col-md-3">
+            <div class="sidebar">
+              <h6>Popular Tags</h6>
+              <div class="tag-list">
+                <Tags />
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
     </>
   );
 };
