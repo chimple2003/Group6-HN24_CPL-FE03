@@ -14,7 +14,8 @@ const Tags = () => {
     const fetchTags = async () => {
       try {
         const response = await axios.get(`${BASE_URL}/api/tags`);
-        setTags(response.data.tags || []);
+        const popularTags = (response.data.tags || []).slice(0, 60);
+        setTags(popularTags);
       } catch (err) {
         setError("Error fetching tags");
       } finally {

@@ -8,7 +8,7 @@ import { TopicListStoreProvider } from "../stores/topic";
 const Homepage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const tab = searchParams.get("tab") || "all";
+  const tab = searchParams.get("tab") || "all"; // Lấy tab từ URL hoặc mặc định là "all"
   const [activeKey, setActiveKey] = useState(tab);
   const [tabs, setTabs] = useState([
     { key: "all", label: "All Topics", visibility: 0 },
@@ -21,35 +21,44 @@ const Homepage = () => {
     },
   ]);
 
-  // Thêm tab mới khi chọn tag
+  // Xử lý khi người dùng chọn tab
   const handleTabSelect = (key) => {
     if (key === "sign-in") {
-      navigate("/login");
-    } else if (key === "all") {
-      setActiveKey(key);
-      searchParams.delete("page");
-      searchParams.delete("tab");
-      setSearchParams({ ...searchParams });
+      navigate("/login"); // Điều hướng đến trang đăng nhập
     } else {
-      setActiveKey(key);
-      searchParams.delete("page");
-      setSearchParams({
-        ...searchParams,
-        tab: key,
-      });
+      setActiveKey(key); // Cập nhật tab đang hoạt động
 
-      // Thêm tab tag nếu chưa có
-      if (!tabs.some((tab) => tab.key === key)) {
+      // Cập nhật URL
+      const updatedParams = new URLSearchParams(searchParams);
+      updatedParams.delete("page"); // Xóa tham số "page" nếu có
+      if (key === "all") {
+        updatedParams.delete("tab");
+      } else {
+        updatedParams.set("tab", key);
+      }
+      setSearchParams(updatedParams);
+
+      // Xóa tab tag cũ và thêm tag mới
+      if (key.startsWith("tag-")) {
         setTabs((prevTabs) => [
-          ...prevTabs,
-          { key, label: `#${key}`, visibility: 0 }, // Hiển thị tag dưới dạng `#tag`
+          ...prevTabs.filter((tab) => !tab.key.startsWith("tag-")), // Xóa tất cả các tab dạng tag-
+          { key, label: `#${key.replace("tag-", "")}`, visibility: 0 }, // Thêm tab tag mới
         ]);
       }
     }
   };
 
+  // Lắng nghe thay đổi của URL và cập nhật tab
   useEffect(() => {
-    setActiveKey(tab); // Cập nhật activeKey khi URL thay đổi
+    setActiveKey(tab);
+
+    // Xóa tab tag cũ và thêm tab mới khi URL thay đổi
+    if (tab.startsWith("tag-")) {
+      setTabs((prevTabs) => [
+        ...prevTabs.filter((t) => !t.key.startsWith("tag-")), // Xóa tất cả các tab dạng tag-
+        { key: tab, label: `#${tab.replace("tag-", "")}`, visibility: 0 }, // Thêm tab mới
+      ]);
+    }
   }, [tab]);
 
   return (

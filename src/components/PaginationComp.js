@@ -1,28 +1,28 @@
-import React, { useEffect, useMemo } from 'react';
-import { Pagination } from 'react-bootstrap';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useTopicListStore } from '../stores/topic';
+import React, { useEffect, useMemo } from "react";
+import { Pagination } from "react-bootstrap";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useTopicListStore } from "../stores/topic";
 
 const PaginationComp = ({ activeKey }) => {
   const navigate = useNavigate();
   const { total = 0, fetchTopicList } = useTopicListStore(); // Lấy fetchTopicList từ store
   const [searchParams, setSearchParams] = useSearchParams();
-  const currentPage = parseInt(searchParams.get('page') || '1', 10);
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const pageSize = 10;
- 
+
   const handlePageChange = async (e, newPage, disabled) => {
     if (disabled) return;
-    searchParams.set('page', newPage.toString());
+    searchParams.set("page", newPage.toString());
     setSearchParams(searchParams);
 
     // Gọi fetchTopicList với page mới và activeKey
     try {
       await fetchTopicList({
-        page: newPage,  
-        tag: activeKey === 'all' ? '' : activeKey,
+        page: newPage,
+        tag: activeKey === "all" ? "" : activeKey,
       });
     } catch (err) {
-      console.error('fetchTopicList error:', err);
+      console.error("fetchTopicList error:", err);
     }
   };
 
@@ -31,15 +31,14 @@ const PaginationComp = ({ activeKey }) => {
       try {
         await fetchTopicList({
           page: currentPage,
-          tag: activeKey === 'all' ? '' : activeKey,
+          tag: activeKey === "all" ? "" : activeKey,
         });
       } catch (err) {
-        console.error('fetchTopicList error:', err);
+        console.error("fetchTopicList error:", err);
       }
     };
     fetchTopicListOnPageChange();
   }, [currentPage, activeKey]);
-
 
   const pageList = useMemo(() => {
     const totalPage = Math.ceil(total / pageSize);
@@ -81,7 +80,8 @@ const PaginationComp = ({ activeKey }) => {
       items.push(createPageItem(i, i === currentPage));
     }
 
-    if (end < totalPage - 1) items.push(<Pagination.Ellipsis key="end-ellipsis" />);
+    if (end < totalPage - 1)
+      items.push(<Pagination.Ellipsis key="end-ellipsis" />);
     if (end < totalPage) items.push(createPageItem(totalPage));
 
     items.push(
@@ -106,4 +106,3 @@ const PaginationComp = ({ activeKey }) => {
 };
 
 export default PaginationComp;
-

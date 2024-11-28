@@ -63,12 +63,12 @@ const Settings = () => {
     <>
       <Header />
 
-      <div className="setting page">
-        <div className="row">
-          <div className="col-md-6 offset-md-3 col-xs-12">
-            <h1>Your Settings</h1>
+      <div className="">
+        <div className="">
+          <div className="">
+            <h1 className="text-center">Your Settings</h1>
             <form onSubmit={handleSubmit}>
-              <fieldset>
+              <fieldset className="container">
                 <fieldset className="form-group">
                   <input
                     className="form-control form-control-lg"

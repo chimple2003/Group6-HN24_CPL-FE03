@@ -1,12 +1,11 @@
 import { useEffect } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import Header from "../components/Header";
 import TabsComponent from "./TabsComponent";
 import ListView from "./ListView";
 import PaginationComp from "./PaginationComp";
 import "./ListPage.css";
 import { useAcountStore } from "../stores/auth";
-
 import { useTopicListStore } from "../stores/topic";
 import Tags from "../pages/Tags";
 
@@ -14,7 +13,7 @@ const ListPage = ({
   activeKey,
   BannerComp,
   defaultActiveKey,
-  handleTabSelect,
+  handleTabSelect, // Đảm bảo rằng handleTabSelect được truyền từ HomePage
   tabs,
 }) => {
   const { user } = useAcountStore();
@@ -40,7 +39,7 @@ const ListPage = ({
     };
 
     fetchData();
-  }, [activeKey, page]); // Theo dõi thay đổi activeKey và page;
+  }, [activeKey, page]); // Theo dõi thay đổi activeKey và page
 
   return (
     <>
@@ -52,17 +51,18 @@ const ListPage = ({
             <TabsComponent
               activeKey={activeKey}
               defaultActiveKey={defaultActiveKey}
-              handleTabSelect={handleTabSelect}
+              handleTabSelect={handleTabSelect} // Truyền xuống đây
               tabs={tabs}
             />
             <ListView activeKey={activeKey} handleTabSelect={handleTabSelect} />
             <PaginationComp activeKey={activeKey} />
           </div>
           <aside className="col-md-3">
-            <div class="sidebar">
+            <div className="sidebar">
               <h6>Popular Tags</h6>
-              <div class="tag-list">
-                <Tags />
+              <div className="tag-list">
+                <Tags onTagSelect={handleTabSelect} />{" "}
+                {/* Truyền handleTabSelect xuống Tags */}
               </div>
             </div>
           </aside>
