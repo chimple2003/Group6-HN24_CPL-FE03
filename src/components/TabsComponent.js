@@ -1,35 +1,21 @@
 import { Button, Tab, Tabs } from 'react-bootstrap';
 import { useAcountStore } from "../stores/auth"
 
-const TabsComponent = ({ activeKey, defaultActiveKey, handleTabSelect, tabs }) => {
+const TabsComponent = ({ activeKey, handleTabSelect }) => {
   const { user } = useAcountStore();
 
   return (
-    <>
-      {user.username && (
-        <div className="text-end">
-          <Button variant="dark" href="/topic/initiate">New Topic</Button>
-        </div>
+    <Tabs
+      className="mb-2"
+      activeKey={activeKey}
+      onSelect={(key) => handleTabSelect(key)}
+    >
+      {user.username && <Tab eventKey="your-feed" title="Your Feed" />}
+      <Tab eventKey="global-feed" title="Global Feed" />
+      {activeKey.startsWith("tag-") && (
+        <Tab eventKey={activeKey} title={`#${activeKey.replace("tag-", "")}`} />
       )}
-
-      <Tabs
-        className="mb-2"
-        activeKey={activeKey}
-        defaultActiveKey={defaultActiveKey}
-        onSelect={key => handleTabSelect(key)}
-      >
-        {tabs.map(tab => {
-          const tabItem = <Tab eventKey={tab.key} title={tab.label} key={tab.key} />;
-          if (tab.visibility === -1) {
-            return !user.username ? tabItem : null;
-          }
-          if (tab.visibility === 1) {
-            return user.username ? tabItem : null;
-          }
-          return tabItem;
-        })}
-      </Tabs>
-    </>
+    </Tabs>
   );
 };
 

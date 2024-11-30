@@ -14,8 +14,7 @@ const Tags = () => {
     const fetchTags = async () => {
       try {
         const response = await axios.get(`${BASE_URL}/api/tags`);
-        const popularTags = (response.data.tags || []).slice(0, 60);
-        setTags(popularTags);
+        setTags(response.data.tags || []);
       } catch (err) {
         setError("Error fetching tags");
       } finally {
@@ -26,7 +25,7 @@ const Tags = () => {
   }, []);
 
   const handleTagClick = (tag) => {
-    navigate(`/?tab=tag-${tag}`); // Chuyển tab và cập nhật URL
+    navigate(`/?tab=tag-${tag}`); // Cập nhật URL với tab tag-{tag}
   };
 
   if (loading) return <p>Loading tags...</p>;
@@ -38,7 +37,7 @@ const Tags = () => {
         <button
           className="tag-pill tag-default"
           key={tag}
-          onClick={() => handleTagClick(tag)}
+          onClick={() => handleTagClick(tag)} // Chuyển sang tab tag khi bấm vào
         >
           {tag}
         </button>

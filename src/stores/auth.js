@@ -18,8 +18,8 @@ export const [useAcountStore, getAcountStore] = createGlobalStore(() => {
 
   const logout = () => {
     setUser({});
-    // localStorage.removeItem("user");
-    // localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
   return { login, logout, update, user };

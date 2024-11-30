@@ -9,60 +9,60 @@ import { useAcountStore } from "../stores/auth";
 import { useTopicListStore } from "../stores/topic";
 import Tags from "../pages/Tags";
 
-const ListPage = ({
-  activeKey,
-  BannerComp,
-  defaultActiveKey,
-  handleTabSelect, // Đảm bảo rằng handleTabSelect được truyền từ HomePage
-  tabs,
-}) => {
-  const { user } = useAcountStore();
+const ListPage = ({ activeKey, BannerComp, handleTabSelect }) => {
+  const { fetchTopicList, topicList, loading, error } = useTopicListStore();
   const [searchParams] = useSearchParams();
-  const page = searchParams.get("page") || "1";
-  const { fetchTopicList, theUser = {} } = useTopicListStore();
+  const page = parseInt(searchParams.get("page") || "1", 10);
+
+  // Trích xuất thông tin tag từ activeKey
+  const tag = activeKey.startsWith("tag-") ? activeKey.replace("tag-", "") : "";
 
   useEffect(() => {
-    const fetchData = async () => {
+    // Xác định API cần gọi dựa trên activeKey
+    const fetchArticles = async () => {
       try {
-        const isTag = activeKey.startsWith("tag-"); // Kiểm tra tab có phải tag
-        const tag = isTag ? activeKey.replace("tag-", "") : ""; // Lấy tag nếu có
-
-        const articles = await fetchTopicList({
-          page: parseInt(page, 10),
-          tag,
-        });
-
-        console.log("Fetched Articles:", articles); // Kiểm tra bài viết trả về
+        if (activeKey === "your-feed") {
+          // Gọi API Your Feed
+          await fetchTopicList({ page, feed: true });
+        } else if (activeKey === "global-feed") {
+          // Gọi API Global Feed
+          await fetchTopicList({ page });
+        } else if (tag) {
+          // Gọi API với tag cụ thể
+          await fetchTopicList({ page, tag });
+        }
       } catch (err) {
-        console.error("Error fetching topic list:", err);
+        console.error("Error fetching articles:", err);
       }
     };
 
-    fetchData();
-  }, [activeKey, page]); // Theo dõi thay đổi activeKey và page
+    fetchArticles();
+  }, [activeKey, page]);
 
   return (
     <>
       <Header />
-      {typeof BannerComp === "function" ? BannerComp(theUser) : BannerComp}
+      {BannerComp}
       <div className="container page">
         <div className="row">
           <div className="col-md-9">
             <TabsComponent
               activeKey={activeKey}
-              defaultActiveKey={defaultActiveKey}
-              handleTabSelect={handleTabSelect} // Truyền xuống đây
-              tabs={tabs}
+              handleTabSelect={handleTabSelect}
             />
-            <ListView activeKey={activeKey} handleTabSelect={handleTabSelect} />
-            <PaginationComp activeKey={activeKey} />
+            {loading ? (
+              <div>Loading...</div>
+            ) : error ? (
+              <div>{error}</div>
+            ) : (
+              <ListView activeKey={activeKey} topicList={topicList} />
+            )}
           </div>
           <aside className="col-md-3">
             <div className="sidebar">
               <h6>Popular Tags</h6>
               <div className="tag-list">
-                <Tags onTagSelect={handleTabSelect} />{" "}
-                {/* Truyền handleTabSelect xuống Tags */}
+                <Tags />
               </div>
             </div>
           </aside>

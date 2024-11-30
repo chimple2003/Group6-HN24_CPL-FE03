@@ -18,44 +18,44 @@ const ListItem = ({ topic }) => {
       return;
     }
     console.log(topic.slug);
-    // try {
-    //   const token = localStorage.getItem("token"); // Lấy token từ localStorage
-    //   if (!token) {
-    //     alert("Token not found. Please log in again.");
-    //     return;
-    //   }
+    try {
+      const token = localStorage.getItem("token"); // Lấy token từ localStorage
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
 
-    //   const apiUrl = topic.favorited
-    //     ? `/articles/${topic.slug}/unfavorite`
-    //     : `/articles/${topic.slug}/favorite`;
+      const apiUrl = topic.favorited
+        ? `/articles/${topic.slug}/unfavorite`
+        : `/articles/${topic.slug}/favorite`;
 
-    //   const config = {
-    //     method: "post",
-    //     maxBodyLength: Infinity, // Đảm bảo không giới hạn kích thước body
-    //     url: `https://node-express-conduit.appspot.com/api${apiUrl}`, // API URL đầy đủ
-    //     headers: {
-    //       Authorization: `Bearer ${token}`, // Thêm Bearer token vào header
-    //     },
-    //   };
+      const config = {
+        method: "post",
+        maxBodyLength: Infinity, // Đảm bảo không giới hạn kích thước body
+        url: `https://node-express-conduit.appspot.com/api${apiUrl}`, // API URL đầy đủ
+        headers: {
+          Authorization: `Bearer ${token}`, // Thêm Bearer token vào header
+        },
+      };
 
-    //   const response = await axios.request(config); // Gửi yêu cầu với axios
-    //   const updatedTopic = response.data.article; // Dữ liệu bài viết sau khi yêu thích/bỏ yêu thích
-    //   updateTopicList(updatedTopic); // Cập nhật danh sách bài viết
+      const response = await axios.request(config); // Gửi yêu cầu với axios
+      const updatedTopic = response.data.article; // Dữ liệu bài viết sau khi yêu thích/bỏ yêu thích
+      updateTopicList(updatedTopic); // Cập nhật danh sách bài viết
 
-    //   console.log("User after favorite:", localStorage.getItem("user"));
-    // } catch (error) {
-    //   console.error("Failed to update favorite status:", error);
-    //   if (error.response) {
-    //     // Xử lý lỗi phản hồi từ server
-    //     console.error("Error Response:", error.response.data);
-    //     alert(
-    //       `Error: ${error.response.data.errors?.message || "Unexpected error"}`
-    //     );
-    //   } else {
-    //     // Lỗi không mong đợi
-    //     console.error("Unexpected Error:", error.message);
-    //   }
-    // }
+      console.log("User after favorite:", localStorage.getItem("user"));
+    } catch (error) {
+      console.error("Failed to update favorite status:", error);
+      if (error.response) {
+        // Xử lý lỗi phản hồi từ server
+        console.error("Error Response:", error.response.data);
+        alert(
+          `Error: ${error.response.data.errors?.message || "Unexpected error"}`
+        );
+      } else {
+        // Lỗi không mong đợi
+        console.error("Unexpected Error:", error.message);
+      }
+    }
   };
 
   return (

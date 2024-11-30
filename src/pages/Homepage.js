@@ -4,62 +4,33 @@ import Banner from "../components/Banner";
 import ListPage from "../components/ListPage";
 
 import { TopicListStoreProvider } from "../stores/topic";
+import { useAcountStore } from "../stores/auth"; // Giả sử bạn có store này
 
 const Homepage = () => {
   const navigate = useNavigate();
+  const { user } = useAcountStore(); // Lấy thông tin người dùng từ store
   const [searchParams, setSearchParams] = useSearchParams();
-  const tab = searchParams.get("tab") || "all"; // Lấy tab từ URL hoặc mặc định là "all"
-  const [activeKey, setActiveKey] = useState(tab);
-  const [tabs, setTabs] = useState([
-    { key: "all", label: "All Topics", visibility: 0 },
-    { key: "my-topics", label: "My Topics", visibility: 1 },
-    { key: "my-favorites", label: "My Favorites", visibility: 1 },
-    {
-      key: "sign-in",
-      label: "Sign in to see your own topics & favorites",
-      visibility: -1,
-    },
-  ]);
 
-  // Xử lý khi người dùng chọn tab
-  const handleTabSelect = (key) => {
-    if (key === "sign-in") {
-      navigate("/login"); // Điều hướng đến trang đăng nhập
-    } else {
-      setActiveKey(key); // Cập nhật tab đang hoạt động
+  const defaultTab = user?.username ? "your-feed" : "global-feed";
+  const tabParam = searchParams.get("tab") || defaultTab;
+  const [activeKey, setActiveKey] = useState(tabParam);
 
-      // Cập nhật URL
-      const updatedParams = new URLSearchParams(searchParams);
-      updatedParams.delete("page"); // Xóa tham số "page" nếu có
-      if (key === "all") {
-        updatedParams.delete("tab");
-      } else {
-        updatedParams.set("tab", key);
-      }
-      setSearchParams(updatedParams);
-
-      // Xóa tab tag cũ và thêm tag mới
-      if (key.startsWith("tag-")) {
-        setTabs((prevTabs) => [
-          ...prevTabs.filter((tab) => !tab.key.startsWith("tag-")), // Xóa tất cả các tab dạng tag-
-          { key, label: `#${key.replace("tag-", "")}`, visibility: 0 }, // Thêm tab tag mới
-        ]);
-      }
-    }
-  };
-
-  // Lắng nghe thay đổi của URL và cập nhật tab
   useEffect(() => {
-    setActiveKey(tab);
-
-    // Xóa tab tag cũ và thêm tab mới khi URL thay đổi
-    if (tab.startsWith("tag-")) {
-      setTabs((prevTabs) => [
-        ...prevTabs.filter((t) => !t.key.startsWith("tag-")), // Xóa tất cả các tab dạng tag-
-        { key: tab, label: `#${tab.replace("tag-", "")}`, visibility: 0 }, // Thêm tab mới
-      ]);
+    if (!user?.username && activeKey === "your-feed") {
+      // Nếu chưa đăng nhập và đang ở Your Feed, chuyển về Global Feed
+      navigate("/?tab=global-feed");
+    } else {
+      setActiveKey(tabParam);
     }
-  }, [tab]);
+  }, [tabParam, user]);
+
+  const handleTabSelect = (key) => {
+    setActiveKey(key);
+
+    const updatedParams = new URLSearchParams(searchParams);
+    updatedParams.set("tab", key);
+    setSearchParams(updatedParams);
+  };
 
   return (
     <TopicListStoreProvider activeKey={activeKey}>
@@ -72,7 +43,6 @@ const Homepage = () => {
           </Banner>
         }
         handleTabSelect={handleTabSelect}
-        tabs={tabs}
       />
     </TopicListStoreProvider>
   );

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createStore } from "hox";
 import axios from "../utils/axios";
-import { API_PREFIX } from "../constants/setting";
+import { API_PREFIX, BASE_URL } from "../constants/setting";
 
 export const [useTopicListStore, TopicListStoreProvider] = createStore(
   (props) => {
@@ -16,37 +16,30 @@ export const [useTopicListStore, TopicListStoreProvider] = createStore(
     const { activeKey = "all" } = props; // Tab hiện tại
 
     // Hàm tải danh sách bài viết từ API
-    const fetchTopicList = async (options = {}) => {
-      const {
-        tag = "",
-        author = "",
-        favorited = "",
-        page = 1,
-        limit = itemsPerPage,
-      } = options;
-
-      setLoading(true); // Bắt đầu tải
-      setError(null); // Reset lỗi trước khi tải
-
+    const fetchTopicList = async ({ page, feed = false, tag = "" }) => {
       try {
-        const offset = (page - 1) * limit;
-        let api = `${API_PREFIX}/articles?limit=${limit}&offset=${offset}`;
+        let url = `${BASE_URL}/api/articles`;
+        const params = new URLSearchParams();
 
-        if (tag) api += `&tag=${encodeURIComponent(tag)}`;
-        if (author) api += `&author=${encodeURIComponent(author)}`;
-        if (favorited) api += `&favorited=${encodeURIComponent(favorited)}`;
+        if (feed) {
+          // Gọi API Your Feed
+          url = `${BASE_URL}/api/articles/feed`;
+        } else if (tag) {
+          // Thêm tham số tag nếu có
+          params.append("tag", tag);
+        }
 
-        const { data = {} } = await axios.get(api);
-        const { articles = [], articlesCount = 0 } = data;
+        params.append("limit", 10);
+        params.append("offset", (page - 1) * 10);
 
-        setTopicList(articles); // Cập nhật danh sách bài viết
-        setTotal(articlesCount); // Cập nhật tổng số bài viết
-        setCurrentPage(page); // Cập nhật trang hiện tại
+        const response = await axios.get(`${url}?${params.toString()}`);
+        setTopicList(response.data.articles);
+        setTotal(response.data.articlesCount || 0);
       } catch (err) {
-        setError("Failed to fetch topics. Please try again."); // Xử lý lỗi
-        console.error("fetchTopicList error:", err);
+        console.error("Failed to fetch topics:", err);
+        setError("Failed to fetch topics");
       } finally {
-        setLoading(false); // Kết thúc tải
+        setLoading(false);
       }
     };
 

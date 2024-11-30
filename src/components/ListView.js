@@ -7,52 +7,55 @@ import { useTopicListStore } from "../stores/topic";
 
 const ListView = ({ activeKey, handleTabSelect }) => {
   const navigate = useNavigate();
-  const { topicList } = useTopicListStore();
+  const { topicList, error, loading } = useTopicListStore();
 
-  const handleClick = (e) => {
-    e.preventDefault();
-    if (activeKey === "favorites" || activeKey === "my-favorites") {
-      // Giữ nguyên tab favorites, không làm gì thêm
-      navigate("/favorites"); // Hoặc không chuyển hướng, chỉ thông báo
-    } else if (activeKey === "my-topics") {
-      // Giữ nguyên tab My Topics
-      navigate("/my-topics"); // Hoặc không chuyển hướng
-    } else {
-      // Nếu không phải các tab trên, chuyển hướng về 'all'
-      handleTabSelect("all");
+  const renderEmptyMessage = () => {
+    if (activeKey === "your-feed") {
+      return (
+        <div className="py-4 text-muted">
+          Your Feed is empty. Start following other users to see their posts.{" "}
+          <a href="/global-feed" onClick={() => handleTabSelect("global-feed")}>
+            Browse Global Feed
+          </a>
+        </div>
+      );
     }
+
+    if (activeKey === "global-feed") {
+      return (
+        <div className="py-4 text-muted">
+          Global Feed is empty. Be the first to create a topic{" "}
+          <a href="/topic/initiate">HERE</a>.
+        </div>
+      );
+    }
+
+    if (activeKey.startsWith("tag-")) {
+      return (
+        <div className="py-4 text-muted">
+          No topics found for tag{" "}
+          <Badge bg="success">{activeKey.substring(4)}</Badge>. Start a topic{" "}
+          <a href="/topic/initiate">HERE</a>.
+        </div>
+      );
+    }
+
+    return (
+      <div className="py-4 text-muted">
+        No topics found. Start a topic <a href="/topic/initiate">HERE</a>.
+      </div>
+    );
   };
 
   return (
     <div className="topicList list-group">
-      {topicList.length ? (
-        topicList.map((item) => <ListItem key={item?.slug} topic={item} />)
-      ) : (
-        <div className="py-4 text-muted">
-          {["favorites", "my-favorites"].includes(activeKey) && (
-            <>
-              Nothing yet... You can find some topics that interest you{" "}
-              <a href="" onClick={handleClick}>
-                HERE
-              </a>
-              .
-            </>
-          )}
-          {["all", "my-topics", "topics"].includes(activeKey) && (
-            <>
-              Nothing yet... You can initiate a new topic{" "}
-              <a href="/topic/initiate">HERE</a>.
-            </>
-          )}
-          {activeKey.indexOf("tag") === 0 && (
-            <>
-              Nothing yet... You can initiate a new topic with{" "}
-              <Badge bg="success">{activeKey.substring(3)}</Badge>{" "}
-              <a href="/topic/initiate">HERE</a>.
-            </>
-          )}
-        </div>
-      )}
+      {loading && <div className="text-center py-4">Loading...</div>}
+
+      {error && <div className="alert alert-danger">{error}</div>}
+
+      {!loading && topicList.length === 0
+        ? renderEmptyMessage()
+        : topicList.map((item) => <ListItem key={item?.slug} topic={item} />)}
     </div>
   );
 };
