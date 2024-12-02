@@ -14,7 +14,10 @@ const Tags = () => {
     const fetchTags = async () => {
       try {
         const response = await axios.get(`${BASE_URL}/api/tags`);
-        setTags(response.data.tags || []);
+
+        const tag = response.data.tags || [];
+        const newTag = tag.slice(1, 90);
+        setTags(newTag);
       } catch (err) {
         setError("Error fetching tags");
       } finally {

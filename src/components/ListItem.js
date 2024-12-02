@@ -25,13 +25,11 @@ const ListItem = ({ topic }) => {
         return;
       }
 
-      const apiUrl = topic.favorited
-        ? `/articles/${topic.slug}/unfavorite`
-        : `/articles/${topic.slug}/favorite`;
-
+      const apiUrl = `/articles/${topic.slug}/favorite`;
+      const method = topic.favorited ? "delete" : "post";
       const config = {
-        method: "post",
-        maxBodyLength: Infinity, // Đảm bảo không giới hạn kích thước body
+        method,
+
         url: `https://node-express-conduit.appspot.com/api${apiUrl}`, // API URL đầy đủ
         headers: {
           Authorization: `Bearer ${token}`, // Thêm Bearer token vào header
