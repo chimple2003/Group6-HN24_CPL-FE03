@@ -19,6 +19,14 @@ const Register = () => {
   const [toastMsg, setToastMsg] = useState("");
   const [showToast, setShowToast] = useState(false);
 
+  // Trạng thái "đã chạm" vào các trường
+  const [touched, setTouched] = useState({
+    email: false,
+    username: false,
+    password: false,
+    passwordConfirm: false,
+  });
+
   const handleChange = (type, val) => {
     switch (type) {
       case "email":
@@ -38,61 +46,41 @@ const Register = () => {
     }
   };
 
+  const handleBlur = (type) => {
+    setTouched({ ...touched, [type]: true });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // Kiểm tra tính hợp lệ của form trước khi gửi
     if (!e.currentTarget.checkValidity()) {
       return;
     }
 
     try {
-      // Gửi yêu cầu POST đến API với dữ liệu người dùng
       const { data = {} } = await axios.post(
         "https://node-express-conduit.appspot.com/api/users",
         {
-          user: {
-            username: username, // Tên người dùng
-            email: email, // Email người dùng
-            password: password, // Mật khẩu người dùng
-          },
+          user: { username, email, password },
         },
-        {
-          headers: {
-            "Content-Type": "application/json", // Đảm bảo gửi dữ liệu dưới dạng JSON
-          },
-        }
+        { headers: { "Content-Type": "application/json" } }
       );
 
-      console.log("API Response Data:", data); // Xem cấu trúc của dữ liệu trả về
-
-      // Kiểm tra xem dữ liệu có chứa trường 'user' không
       const user = data.user;
       const token = user?.token;
 
-      if (!user) {
-        throw new Error("User object is missing in the API response.");
+      if (!user || !token) {
+        throw new Error("Registration failed: Missing user or token.");
       }
 
-      if (!token) {
-        throw new Error("Token is missing in the user object.");
-      }
-
-      // Đăng nhập người dùng
       login(user, token);
-
-      // Delay để loading
       await loadingDelay(400);
       setLoading(false);
-
-      // Điều hướng sau khi đăng ký thành công
       navigate("/");
     } catch (err) {
       await loadingDelay(300);
       setLoading(false);
-
-      // Hiển thị thông báo lỗi khi gặp sự cố
       setToastMsg(
         err.response?.data?.msg || err.message || "Registration failed"
       );
@@ -123,11 +111,13 @@ const Register = () => {
                 autoComplete="off"
                 className="w-100"
                 isInvalid={
+                  touched.email &&
                   !email.match(
                     /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
                   )
                 }
                 onChange={(e) => handleChange("email", e.target.value)}
+                onBlur={() => handleBlur("email")}
                 placeholder="username@example.com"
                 type="email"
                 value={email}
@@ -137,8 +127,9 @@ const Register = () => {
             <FloatingLabel controlId="username" label="Username">
               <Form.Control
                 autoComplete="off"
-                isInvalid={!username}
+                isInvalid={touched.username && !username}
                 onChange={(e) => handleChange("username", e.target.value)}
+                onBlur={() => handleBlur("username")}
                 placeholder="Username"
                 required
                 type="text"
@@ -149,8 +140,9 @@ const Register = () => {
             <FloatingLabel controlId="password" label="Password">
               <Form.Control
                 autoComplete="off"
-                isInvalid={!password}
+                isInvalid={touched.password && !password}
                 onChange={(e) => handleChange("password", e.target.value)}
+                onBlur={() => handleBlur("password")}
                 placeholder="Password"
                 required
                 type="password"
@@ -162,10 +154,13 @@ const Register = () => {
               <Form.Control
                 autoComplete="off"
                 className="mb-3"
-                isInvalid={password !== passwordConfirm}
+                isInvalid={
+                  touched.passwordConfirm && password !== passwordConfirm
+                }
                 onChange={(e) =>
                   handleChange("passwordConfirm", e.target.value)
                 }
+                onBlur={() => handleBlur("passwordConfirm")}
                 placeholder="Confirm your password"
                 type="password"
                 value={passwordConfirm}

@@ -5,36 +5,47 @@ import { API_PREFIX, BASE_URL } from "../constants/setting";
 
 export const [useTopicListStore, TopicListStoreProvider] = createStore(
   (props) => {
-    const [topicList, setTopicList] = useState([]); // Danh sách bài viết
-    const [total, setTotal] = useState(0); // Tổng số bài viết
-    const [theUser, setTheUser] = useState({}); // Người dùng hiện tại
-    const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-    const [loading, setLoading] = useState(false); // Trạng thái loading
-    const [error, setError] = useState(null); // Trạng thái lỗi
+    const [allTopics, setAllTopics] = useState([]); // Full list of topics
+    const [topicList, setTopicList] = useState([]); // Paginated list of topics
+    const [total, setTotal] = useState(0); // Total number of topics
+    const [theUser, setTheUser] = useState({}); // Current user
+    const [currentPage, setCurrentPage] = useState(1); // Current page
+    const [loading, setLoading] = useState(false); // Loading status
+    const [error, setError] = useState(null); // Error status
 
-    const itemsPerPage = 10; // Số bài viết mỗi trang
-    const { activeKey = "all" } = props; // Tab hiện tại
+    const itemsPerPage = 10; // Number of items per page
+    const { activeKey = "all" } = props; // Current tab
 
-    // Hàm tải danh sách bài viết từ API
-    const fetchTopicList = async ({ page, feed = false, tag = "" }) => {
+    // Function to fetch topics with a limit of 100
+    const fetchTopicList = async ({ page = 1, feed = false, tag = "" }) => {
       try {
+        setLoading(true);
         let url = `${BASE_URL}/api/articles`;
         const params = new URLSearchParams();
 
         if (feed) {
-          // Gọi API Your Feed
+          // API call for Your Feed
           url = `${BASE_URL}/api/articles/feed`;
         } else if (tag) {
-          // Thêm tham số tag nếu có
+          // Add tag parameter if present
           params.append("tag", tag);
         }
 
-        params.append("limit", 10);
-        params.append("offset", (page - 1) * 10);
+        // Fetch 100 records
+        params.append("limit", 380);
+        params.append("offset", 0);
 
         const response = await axios.get(`${url}?${params.toString()}`);
-        setTopicList(response.data.articles);
+
+        // Store full list of topics
+        setAllTopics(response.data.articles);
         setTotal(response.data.articlesCount || 0);
+
+        // Paginate topics client-side
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        setTopicList(response.data.articles.slice(startIndex, endIndex));
+        setCurrentPage(page);
       } catch (err) {
         console.error("Failed to fetch topics:", err);
         setError("Failed to fetch topics");
@@ -43,8 +54,15 @@ export const [useTopicListStore, TopicListStoreProvider] = createStore(
       }
     };
 
-    // Hàm cập nhật thông tin bài viết trong danh sách
+    // Update topic in the list
     const updateTopicList = (updatedTopic) => {
+      // Update in full list
+      const updatedAllTopics = allTopics.map((topic) =>
+        topic.slug === updatedTopic.slug ? updatedTopic : topic
+      );
+      setAllTopics(updatedAllTopics);
+
+      // Update in current page list
       setTopicList((prevList) =>
         prevList.map((topic) =>
           topic.slug === updatedTopic.slug ? updatedTopic : topic
@@ -52,25 +70,34 @@ export const [useTopicListStore, TopicListStoreProvider] = createStore(
       );
     };
 
-    // Hàm xóa bài viết khỏi danh sách
+    // Remove topic from list
     const removeTopicFromList = (topic) => {
+      // Remove from full list
+      const updatedAllTopics = allTopics.filter(
+        (item) => item._id !== topic._id
+      );
+      setAllTopics(updatedAllTopics);
+
+      // Remove from current page list
       setTopicList((prevList) =>
         prevList.filter((item) => item._id !== topic._id)
       );
+
       setTotal((prevTotal) => prevTotal - 1);
     };
 
     return {
-      fetchTopicList, // Hàm tải danh sách bài viết
-      removeTopicFromList, // Hàm xóa bài viết
-      theUser, // Người dùng hiện tại
-      topicList, // Danh sách bài viết
-      total, // Tổng số bài viết
-      updateTopicList, // Hàm cập nhật bài viết
-      currentPage, // Trang hiện tại
-      itemsPerPage, // Số bài viết mỗi trang
-      loading, // Trạng thái loading
-      error, // Trạng thái lỗi
+      fetchTopicList, // Function to fetch topics
+      removeTopicFromList, // Function to remove topic
+      theUser, // Current user
+      topicList, // Paginated list of topics
+      allTopics, // Full list of topics
+      total, // Total number of topics
+      updateTopicList, // Function to update topic
+      currentPage, // Current page
+      itemsPerPage, // Items per page
+      loading, // Loading status
+      error, // Error status
       activeKey,
     };
   }

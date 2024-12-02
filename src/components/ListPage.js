@@ -58,6 +58,7 @@ const ListPage = ({ activeKey, BannerComp, handleTabSelect }) => {
               <ListView activeKey={activeKey} topicList={topicList} />
             )}
           </div>
+
           <aside className="col-md-3">
             <div className="sidebar">
               <h6>Popular Tags</h6>
@@ -66,6 +67,7 @@ const ListPage = ({ activeKey, BannerComp, handleTabSelect }) => {
               </div>
             </div>
           </aside>
+          <PaginationComp />
         </div>
       </div>
     </>

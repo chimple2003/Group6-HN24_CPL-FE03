@@ -5,43 +5,45 @@ import { useTopicListStore } from "../stores/topic";
 
 const PaginationComp = ({ activeKey }) => {
   const navigate = useNavigate();
-  const { total = 0, fetchTopicList } = useTopicListStore(); // Lấy fetchTopicList từ store
+  const {
+    total = 0,
+    fetchTopicList,
+    allTopics,
+    itemsPerPage,
+  } = useTopicListStore();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
-  const pageSize = 10;
 
-  const handlePageChange = async (e, newPage, disabled) => {
+  // Handle page change
+  const handlePageChange = (e, newPage, disabled) => {
     if (disabled) return;
+
+    // Update URL search params
     searchParams.set("page", newPage.toString());
     setSearchParams(searchParams);
 
-    // Gọi fetchTopicList với page mới và activeKey
-    try {
-      await fetchTopicList({
+    // If topics not fetched, fetch them
+    if (allTopics.length === 0) {
+      fetchTopicList({
         page: newPage,
         tag: activeKey === "all" ? "" : activeKey,
       });
-    } catch (err) {
-      console.error("fetchTopicList error:", err);
     }
   };
 
+  // Fetch topics on initial load or when active key changes
   useEffect(() => {
-    const fetchTopicListOnPageChange = async () => {
-      try {
-        await fetchTopicList({
-          page: currentPage,
-          tag: activeKey === "all" ? "" : activeKey,
-        });
-      } catch (err) {
-        console.error("fetchTopicList error:", err);
-      }
-    };
-    fetchTopicListOnPageChange();
-  }, [currentPage, activeKey]);
+    if (allTopics.length === 0) {
+      fetchTopicList({
+        page: currentPage,
+        tag: activeKey === "all" ? "" : activeKey,
+      });
+    }
+  }, [activeKey]);
 
+  // Generate pagination items
   const pageList = useMemo(() => {
-    const totalPage = Math.ceil(total / pageSize);
+    const totalPage = Math.ceil(total / itemsPerPage);
     if (totalPage <= 1) return [];
 
     const createPageItem = (page, isActive = false) => (
@@ -100,7 +102,7 @@ const PaginationComp = ({ activeKey }) => {
     );
 
     return items;
-  }, [total, currentPage]);
+  }, [total, currentPage, allTopics]);
 
   return <Pagination>{pageList}</Pagination>;
 };

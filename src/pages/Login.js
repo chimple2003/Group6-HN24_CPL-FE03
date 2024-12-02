@@ -16,6 +16,8 @@ const Login = () => {
   const redirect = searchParams.get("redirect") || "/";
   const [email, setEmail] = useState(defaultEmail);
   const [password, setPassword] = useState("");
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
   const [showToast, setShowToast] = useState(false);
   const { login } = useAcountStore();
@@ -23,8 +25,10 @@ const Login = () => {
   const handleChange = (type, val) => {
     if (type === "email") {
       setEmail(val);
+      if (!emailTouched) setEmailTouched(true);
     } else if (type === "password") {
       setPassword(val);
+      if (!passwordTouched) setPasswordTouched(true);
     }
   };
 
@@ -88,9 +92,8 @@ const Login = () => {
                 autoComplete="off"
                 className="w-100"
                 isInvalid={
-                  !email.match(
-                    /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
-                  )
+                  emailTouched &&
+                  !email.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
                 }
                 onChange={(e) => handleChange("email", e.target.value)}
                 placeholder="name@example.com"
@@ -104,7 +107,7 @@ const Login = () => {
               <Form.Control
                 autoComplete="off"
                 className="mb-3 w-100"
-                isInvalid={!password}
+                isInvalid={passwordTouched && !password}
                 onChange={(e) => handleChange("password", e.target.value)}
                 placeholder="Password"
                 required
