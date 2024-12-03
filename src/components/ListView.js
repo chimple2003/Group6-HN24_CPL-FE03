@@ -14,7 +14,10 @@ const ListView = ({ activeKey, handleTabSelect }) => {
       return (
         <div className="py-4 text-muted">
           Your Feed is empty. Start following other users to see their posts.{" "}
-          <a href="/global-feed" onClick={() => handleTabSelect("global-feed")}>
+          <a
+            href="/?tab=global-feed"
+            onClick={() => handleTabSelect("global-feed")}
+          >
             Browse Global Feed
           </a>
         </div>

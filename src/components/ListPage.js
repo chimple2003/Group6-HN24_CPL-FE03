@@ -1,34 +1,34 @@
 import { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import TabsComponent from "./TabsComponent";
 import ListView from "./ListView";
 import PaginationComp from "./PaginationComp";
 import "./ListPage.css";
-import { useAcountStore } from "../stores/auth";
 import { useTopicListStore } from "../stores/topic";
 import Tags from "../pages/Tags";
 
-const ListPage = ({ activeKey, BannerComp, handleTabSelect }) => {
-  const { fetchTopicList, topicList, loading, error } = useTopicListStore();
-  const [searchParams] = useSearchParams();
+const ListPage = ({ BannerComp }) => {
+  const { fetchTopicList, getArticlesFeed, topicList, loading, error } =
+    useTopicListStore();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // Lấy giá trị activeKey từ URL hoặc đặt mặc định là "global-feed"
+  const activeKey = searchParams.get("tab") || "global-feed";
   const page = parseInt(searchParams.get("page") || "1", 10);
 
   // Trích xuất thông tin tag từ activeKey
   const tag = activeKey.startsWith("tag-") ? activeKey.replace("tag-", "") : "";
 
   useEffect(() => {
-    // Xác định API cần gọi dựa trên activeKey
     const fetchArticles = async () => {
       try {
         if (activeKey === "your-feed") {
-          // Gọi API Your Feed
-          await fetchTopicList({ page, feed: true });
+          await getArticlesFeed({ page });
         } else if (activeKey === "global-feed") {
-          // Gọi API Global Feed
           await fetchTopicList({ page });
         } else if (tag) {
-          // Gọi API với tag cụ thể
           await fetchTopicList({ page, tag });
         }
       } catch (err) {
@@ -39,6 +39,13 @@ const ListPage = ({ activeKey, BannerComp, handleTabSelect }) => {
     fetchArticles();
   }, [activeKey, page]);
 
+  // Đồng bộ URL lần đầu render nếu không có activeKey trong URL
+  useEffect(() => {
+    if (!searchParams.get("tab")) {
+      setSearchParams({ tab: "global-feed", page: 1 });
+    }
+  }, []); // Chỉ chạy khi lần đầu render
+
   return (
     <>
       <Header />
@@ -48,7 +55,9 @@ const ListPage = ({ activeKey, BannerComp, handleTabSelect }) => {
           <div className="col-md-9">
             <TabsComponent
               activeKey={activeKey}
-              handleTabSelect={handleTabSelect}
+              handleTabSelect={(key) => {
+                navigate(`/?tab=${key}&page=1`);
+              }}
             />
             {loading ? (
               <div>Loading...</div>

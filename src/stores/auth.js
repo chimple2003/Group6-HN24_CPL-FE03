@@ -11,6 +11,10 @@ export const [useAcountStore, getAcountStore] = createGlobalStore(() => {
     localStorage.setItem("token", token);
   };
 
+  const getToken = () => {
+    return localStorage.getItem("token");
+  };
+
   const update = (user) => {
     setUser(user);
     localStorage.setItem("user", JSON.stringify(user));
@@ -22,7 +26,7 @@ export const [useAcountStore, getAcountStore] = createGlobalStore(() => {
     localStorage.removeItem("token");
   };
 
-  return { login, logout, update, user };
+  return { login, logout, update, user, getToken };
 });
 
 export const [useLoadingStore, getLoadingStore] = createGlobalStore(() => {
