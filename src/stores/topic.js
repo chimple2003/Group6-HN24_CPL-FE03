@@ -15,6 +15,7 @@ export const [useTopicListStore, TopicListStoreProvider] = createStore(
     const itemsPerPage = 10; // Number of items per page
     const { activeKey = "all" } = props; // Current tab
     const token = getAcountStore().getToken;
+    const user = getAcountStore().user;
     // Function to fetch topics with a limit of 100
     const fetchTopicList = async ({
       tag = "",
@@ -31,8 +32,8 @@ export const [useTopicListStore, TopicListStoreProvider] = createStore(
 
         // Thêm các tham số nếu có
         if (tag) params.append("tag", tag);
-        if (author) params.append("author", author);
-        if (favorited) params.append("favorited", favorited);
+        if (author) params.append("author", user.username);
+        if (favorited) params.append("favorited", user.username);
         params.append("limit", limit);
 
         const headers = {};

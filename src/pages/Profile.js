@@ -1,28 +1,76 @@
 import React, { useEffect, useState } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Nav,
+  Spinner,
+  Alert,
+} from "react-bootstrap";
 import { useAcountStore } from "../stores/auth";
 import { BASE_URL } from "../constants/setting";
 import { useSearchParams } from "react-router-dom";
 import { TopicListStoreProvider, useTopicListStore } from "../stores/topic";
 import Header from "../components/Header";
-import TabsComponent from "../components/TabsComponent";
-import ListView from "../components/ListView";
-import PaginationComp from "../components/PaginationComp";
-import Tags from "./Tags";
+import ListItem from "../components/ListItem";
+import { Pagination } from "react-bootstrap";
+const TabsComponent = ({ activeKey, handleTabSelect }) => {
+  const tabs = [
+    { key: "my-feed", label: "My Articles" },
+    { key: "my-favorite", label: "Favorited Articles" },
+  ];
+
+  return (
+    <Nav
+      variant="tabs"
+      activeKey={activeKey}
+      className="mb-3"
+      onSelect={handleTabSelect}
+    >
+      {tabs.map((tab) => (
+        <Nav.Item key={tab.key}>
+          <Nav.Link eventKey={tab.key}>{tab.label}</Nav.Link>
+        </Nav.Item>
+      ))}
+    </Nav>
+  );
+};
+
+const paginateTopics = (topics, currentPage = 1, itemsPerPage = 5) => {
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  const paginatedTopics = topics.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(topics.length / itemsPerPage);
+
+  return {
+    paginatedTopics,
+    totalPages,
+    currentPage,
+  };
+};
 
 const ProfileContent = ({ activeKey, profile, handleTabSelect }) => {
-  const { fetchTopicList, topicList, loading, error } = useTopicListStore();
-  const [searchParams] = useSearchParams();
+  const [currentPage, setCurrentPage] = useState(1);
+  const { fetchTopicList, topicList, loading, error, total } =
+    useTopicListStore();
+  const [searchParams, setSearchParams] = useSearchParams();
   const page = parseInt(searchParams.get("page") || "1", 10);
 
-  // Determine the type of list to fetch based on activeKey
+  // Phân trang
+  const { paginatedTopics, totalPages } = paginateTopics(
+    topicList,
+    currentPage
+  );
+
   useEffect(() => {
     const fetchProfileContent = async () => {
       try {
-        if (activeKey === "topics") {
-          // Fetch user's topics
+        if (activeKey === "my-feed") {
           await fetchTopicList({ page, author: profile.username });
-        } else if (activeKey === "favorites") {
-          // Fetch user's favorite topics
+        }
+        if (activeKey === "my-favorite") {
           await fetchTopicList({ page, favorited: profile.username });
         }
       } catch (err) {
@@ -33,40 +81,77 @@ const ProfileContent = ({ activeKey, profile, handleTabSelect }) => {
     fetchProfileContent();
   }, [activeKey, page, profile.username]);
 
+  // Thêm nút phân trang
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+
+    // Cập nhật URL
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("page", pageNumber);
+    setSearchParams(newSearchParams);
+  };
+
   return (
-    <div className="container page">
-      <div className="row">
-        <div className="col-md-9">
+    <Container>
+      <Row>
+        <Col md={12}>
           <TabsComponent
             activeKey={activeKey}
             handleTabSelect={handleTabSelect}
           />
+
           {loading ? (
-            <div>Loading...</div>
+            <Spinner animation="border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
           ) : error ? (
-            <div>{error}</div>
+            <Alert variant="danger">{error}</Alert>
           ) : (
-            <ListView activeKey={activeKey} topicList={topicList} />
+            <>
+              {paginatedTopics.length === 0 ? (
+                <Alert variant="info" className="text-center">
+                  No articles available for this section.
+                </Alert>
+              ) : (
+                <>
+                  {paginatedTopics.map((item) => (
+                    <ListItem key={item.slug} topic={item} />
+                  ))}
+
+                  {totalPages > 1 && (
+                    <Pagination className="d-flex justify-content-center mt-4">
+                      <Pagination.Prev
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                      />
+                      {[...Array(totalPages)].map((_, index) => (
+                        <Pagination.Item
+                          key={index}
+                          active={index + 1 === currentPage}
+                          onClick={() => handlePageChange(index + 1)}
+                        >
+                          {index + 1}
+                        </Pagination.Item>
+                      ))}
+                      <Pagination.Next
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                      />
+                    </Pagination>
+                  )}
+                </>
+              )}
+            </>
           )}
-          <PaginationComp />
-        </div>
-        <aside className="col-md-3">
-          <div className="sidebar">
-            <h6>Popular Tags</h6>
-            <div className="tag-list">
-              <Tags />
-            </div>
-          </div>
-        </aside>
-      </div>
-    </div>
+        </Col>
+      </Row>
+    </Container>
   );
 };
-
 const Profile = () => {
   const { user } = useAcountStore();
   const [searchParams, setSearchParams] = useSearchParams();
-  const tab = searchParams.get("tab") || "topics";
+  const tab = searchParams.get("tab") || "my-feed";
   const [activeKey, setActiveKey] = useState(tab);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -79,12 +164,9 @@ const Profile = () => {
             `${BASE_URL}/api/profiles/${user.username}`,
             {
               method: "GET",
-              headers: {
-                accept: "application/json",
-              },
+              headers: { accept: "application/json" },
             }
           );
-
           if (response.ok) {
             const data = await response.json();
             setProfile(data.profile);
@@ -105,21 +187,10 @@ const Profile = () => {
     }
   }, [user?.username]);
 
-  const tabs = [
-    { key: "topics", label: "My Topics", visibility: 1 },
-    { key: "favorites", label: "Favorites", visibility: 1 },
-  ];
-
   const handleTabSelect = (key) => {
     setActiveKey(key);
     const newSearchParams = new URLSearchParams(searchParams);
-
-    if (key === "topics") {
-      newSearchParams.delete("tab");
-    } else {
-      newSearchParams.set("tab", key);
-    }
-
+    newSearchParams.set("tab", key);
     newSearchParams.delete("page");
     setSearchParams(newSearchParams);
   };
@@ -128,32 +199,48 @@ const Profile = () => {
     if (!profile) return null;
 
     return (
-      <div className="profile-banner">
-        <div className="container">
-          <div className="profile-header text-center">
-            <img
-              src={profile.image}
-              alt={profile.username}
-              className="profile-avatar"
-              width={150}
-              height={150}
-            />
-            <h2 className="mt-3">{profile.username}</h2>
-            <p className="text-secondary">
-              {profile.bio || "No bio available"}
-            </p>
-          </div>
-        </div>
+      <div className="bg-light py-5 mb-4">
+        <Container>
+          <Card className="text-center border-0 bg-transparent">
+            <div className="d-flex flex-column align-items-center">
+              <img
+                src={
+                  profile.image ||
+                  "https://api.realworld.io/images/smiley-cyrus.jpg"
+                }
+                alt={profile.username}
+                className="rounded-circle mb-3"
+                style={{ width: "150px", height: "150px", objectFit: "cover" }}
+              />
+              <Card.Title as="h2" className="mb-2">
+                {profile.username}
+              </Card.Title>
+              <Card.Text className="text-muted">
+                {profile.bio || "No bio available"}
+              </Card.Text>
+            </div>
+          </Card>
+        </Container>
       </div>
     );
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="text-center my-5">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
   }
 
   if (!profile) {
-    return <div>No profile found</div>;
+    return (
+      <Alert variant="warning" className="text-center">
+        No profile found
+      </Alert>
+    );
   }
 
   return (

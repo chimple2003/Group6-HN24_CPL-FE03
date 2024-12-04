@@ -1,5 +1,5 @@
-import { Button, Tab, Tabs } from 'react-bootstrap';
-import { useAcountStore } from "../stores/auth"
+import { Button, Tab, Tabs } from "react-bootstrap";
+import { useAcountStore } from "../stores/auth";
 
 const TabsComponent = ({ activeKey, handleTabSelect }) => {
   const { user } = useAcountStore();
