@@ -170,6 +170,7 @@ const Profile = () => {
           if (response.ok) {
             const data = await response.json();
             setProfile(data.profile);
+            console.log(data.profile);
           } else {
             console.error("Error fetching user data");
           }

@@ -74,7 +74,7 @@ const ListItem = ({ topic }) => {
       <div className="w-100">
         <div className="d-flex w-100 justify-content-between mb-2">
           <div className="w-100">
-            <a href={`/article/${topic.slug}`} className="d-block mb-4">
+            <a href={`/topic/${topic.slug}`} className="d-block mb-4">
               <h5 className="mb-1">{topic.title}</h5>
               <p className="text-muted">{topic.description}</p>
             </a>
