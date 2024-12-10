@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
 import {
   Badge,
   Button,
@@ -37,7 +37,7 @@ const TopicDetails = () => {
   const [editedCommentBody, setEditedCommentBody] = useState("");
 
   const ARTICLES_PER_PAGE = 5;
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchTopicDetails = async () => {
       try {
@@ -81,6 +81,11 @@ const TopicDetails = () => {
   }, [slug, currentPage]);
 
   const handleFollowToggle = async () => {
+    if (!user || !user.username) {
+      alert("You need to log in to follow users.");
+      navigate("/login");
+      return;
+    }
     try {
       if (isFollowing) {
         await axios.delete(`${API_PREFIX}/profiles/${author.username}/follow`);
@@ -94,6 +99,11 @@ const TopicDetails = () => {
   };
 
   const handleAddComment = async () => {
+    if (!user || !user.username) {
+      alert("You need to log in to add comments.");
+      navigate("/login");
+      return;
+    }
     if (!newComment.trim()) return;
     try {
       const { data } = await axios.post(
@@ -110,6 +120,11 @@ const TopicDetails = () => {
   };
 
   const handleLikeToggle = async () => {
+    if (!user || !user.username) {
+      alert("You need to log in to like articles.");
+      navigate("/login");
+      return;
+    }
     try {
       if (topic.favorited) {
         await axios.delete(`${API_PREFIX}/articles/${slug}/favorite`);
